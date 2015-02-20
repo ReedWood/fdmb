@@ -39,4 +39,5 @@ include_directories(global ${EIGEN3_INCLUDE_DIR})
 
 
 add_subdirectory(fit)
-add_subdirectory(pyinterface)
+add_subdirectory(python/pyinterface)
+# add_subdirectory(python/tests)
