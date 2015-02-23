@@ -28,4 +28,7 @@ def arfit(data, nData, dim, order):
     status = libfit.wrp_arfit(m_data, nData, dim, order,
                               m_arCoefficients, m_noiseCovariance, m_processCovariance)
 
-    return m_arCoefficients, m_noiseCovariance, m_processCovariance
+    # Split coefficient matrix
+    m_arCoeffArray = np.hsplit(m_arCoefficients, dim)
+
+    return m_arCoeffArray, m_noiseCovariance, m_processCovariance
