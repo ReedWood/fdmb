@@ -9,7 +9,7 @@ import numpy as np
 
 
 # Load libfit and define input types
-ct.cdll.LoadLibrary("/home/wmader/Methods/fdmb-refactor/build/pyinterface/libpyfit.so")
+ct.cdll.LoadLibrary("libpyfit.so")
 libfit = ct.CDLL("libpyfit.so")
 wrp_arfit = libfit.py_arfit
 
