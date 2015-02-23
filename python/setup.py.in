@@ -1,0 +1,7 @@
+from distutils.core import setup
+
+setup(name='pyinterface',
+      version='1',
+      package_dir={ '': '${CMAKE_CURRENT_SOURCE_DIR}' },
+      #package_dir={ '': 'python' },
+      packages=['pyinterface'])
