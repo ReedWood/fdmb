@@ -8,8 +8,8 @@ setup(name='fdmb',
       url='https://github.com/ReedWood/fdmb',
       package_dir={ '': '${CMAKE_CURRENT_SOURCE_DIR}' },
       license='GPLv3',
-      long_description='fdmb is a toolbox to estimate parameters in the linear
-                        state space model. It is implemented as a shared C library.
+      long_description='fdmb is a toolbox to estimate parameters in the linear \
+                        state space model. It is implemented as a shared C library. \
                         This packages provides python bindings for the fdmb.',
       packages=['fdmb']
       )
