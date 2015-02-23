@@ -15,5 +15,11 @@ if (PYTHON)
 
     add_custom_target(target ALL DEPENDS ${OUTPUT})
 
-    install(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install)")
+    if(DEFINED ENV{BUILDING_FOR_AUR})
+      message("Building AUR packages")
+      install(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install --$ENV{pkgdir}/usr)")
+    else
+      message("Try to install system wide...")
+      install(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install)")
+    endif
 endif()
