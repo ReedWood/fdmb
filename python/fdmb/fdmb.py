@@ -15,7 +15,7 @@ def arfit(data, nData, dim, order):
     The parameters A1, ..., An of the VAR model
        x(t) = A1.dot(x(t-1)) + A2.dot(x(t-2)) +
               ... + An.dot(x(t-n)) + randn
-    where x is a d-dimensional vector and A dXd matrix are
+    where x is a d-dimensional vector and An dXd matrix are
     fitted using Yule-Walker equations.
     """
 

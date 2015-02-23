@@ -1,6 +1,11 @@
 from distutils.core import setup
 
-setup(name='pyinterface',
+setup(name='fdmb',
       version='1',
+      description='Python bindings for fdmb',
+      author='Wolfgang Mader',
+      author_email='Wolfgang.Mader@fdm.uni-freiburg.de',
+      url='https://github.com/ReedWood/fdmb',
       package_dir={ '': '${CMAKE_CURRENT_SOURCE_DIR}' },
-      packages=['pyinterface'])
+      packages=['fdmb']
+      )
