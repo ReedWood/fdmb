@@ -1,6 +1,7 @@
 /*
  * Declarations of fitting functions.
  * Copyright (C) 2011  Yannick Linke
+ * Copyright (C) 2015  Wolfgang Mader <Wolfgang.Mader@fdm.uni-freiburg.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +23,48 @@
 #define fdmb_fit_h
 
 
+#include <ctime>
 #include "global.h"
 
 
-void arfit(const Matrix &x, int order, Matrix &a, Matrix &q, Matrix &v);
+struct Panel {
+    size_t length;
+    Matrix * y, * x ;
+    Matrix * u;
+};
 
+
+struct Model {
+    size_t order, ma_order, dim, dimX, dimU;
+    Matrix a, m, c, q, r, p;
+    Matrix g, h;
+    Matrix p_1, k, b, t, tqtt, ts, ikca, iba, ikcgh;
+    Matrix asav;
+    
+    Matrix v;
+    
+    bool input, est_h;
+    Matrix t_u, t_y;
+};
+
+
+struct Info {
+    double aThresh, pThresh;
+    size_t maxIter;
+    size_t totalLength;
+    
+    bool log;
+    size_t logStep;
+    std::string logPath;
+    std::string logFilesPat;
+    std::map< std::string, std::string > logFiles;
+    
+    size_t iterations;
+    std::clock_t started, checkpoint;
+};
+
+
+void arfit(const Matrix &x, int order, Matrix &a, Matrix &q, Matrix &v);
+void emfit(std::vector<Panel> & panels, Model & model, Info & info);
 
 #endif

@@ -15,8 +15,11 @@
 
 
 add_library(fdmb SHARED arfit.cpp
-                       ../global/global.cpp
-                       )
+                        emfit.cpp
+                        ../global/global.cpp
+                        )
+                        
+target_link_libraries(fdmb tbb)
 
 
 install(TARGETS fdmb DESTINATION lib)
