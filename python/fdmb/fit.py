@@ -1,13 +1,33 @@
 """@package docstring
-Python Interface of fdmb.
+Python wrapper for libfit.
 
-Collection of all fdmb functions which interface with Python.
+This package defines function and return types for functions in libfit.
 """
 
+import ctypes as ct
 import numpy as np
-import libfit
 
 
+# Load libfit and define input types
+ct.cdll.LoadLibrary("libpyfit.so")
+libfit = ct.CDLL("libpyfit.so")
+wrp_arfit = libfit.py_arfit
+
+
+# py_arfit: argtypes, restypes
+wrp_arfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                      ct.c_int32,
+                      ct.c_int32,
+                      ct.c_int32,
+                      np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                      np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                      np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                      ]
+
+wrp_arfit.restypes = np.int32
+
+
+# Interface for wrp_arfit
 def arfit(data, nData, dim, order):
     """
     Fit parameters of a VAR process.
