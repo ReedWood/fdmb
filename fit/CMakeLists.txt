@@ -14,9 +14,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-add_library(fit SHARED arfit.cpp
+add_library(fdmb SHARED arfit.cpp
                        ../global/global.cpp
                        )
 
 
-install(TARGETS fit DESTINATION lib)
+install(TARGETS fdmb DESTINATION lib)
