@@ -11,32 +11,48 @@ import numpy as np
 # Load libfdmb and define input types
 ct.cdll.LoadLibrary("libfdmbpy.so")
 libfdmb = ct.CDLL("libfdmbpy.so")
-wrp_arfit = libfdmb.py_arfit
 
 
 # py_arfit: argtypes, restypes
-wrp_arfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                      ct.c_int32,
-                      ct.c_int32,
-                      ct.c_int32,
-                      np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                      np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                      np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                      ]
+libfdmb.py_arfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             ct.c_int32,
+                             ct.c_int32,
+                             ct.c_int32,
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             ]
 
-wrp_arfit.restypes = np.int32
+libfdmb.py_arfit.restypes = np.int32
 
 
-# Interface for wrp_arfit
+# Interface for libfdmb.py_arfit
 def arfit(data, nData, dim, order):
     """
-    Fit parameters of a VAR process.
+    Fit parameters of a vector autoregressive (VAR) process.
 
-    The parameters A1, ..., An of the VAR model
-       x(t) = A1.dot(x(t-1)) + A2.dot(x(t-2)) +
-              ... + An.dot(x(t-n)) + randn
-    where x is a d-dimensional vector and An dXd matrix are
-    fitted using Yule-Walker equations.
+    Input:
+    data: Measurements
+    nData: Number of measurement times
+    dim: Number of measured channels, dimension of the VAR
+    order: Order of the VAR
+
+    Return:
+    arCoeff: List of lengths <order> of VAR parameters
+    noiseCoeff: Covariance matrix of the driving noise eta
+    covariance: The vector autocovariance of the process
+
+    The parameters A_1, ..., A_order of the <dim> dimensional
+    VAR[order] model
+       x(t) = A_1.dot(x(t-1)) + A_2.dot(x(t-2)) +
+              ... + A_order.dot(x(t-n)) + eta(t)
+    are fitted to <data>. x(t) is a <dim>-dimensional vector. There
+    are <nData> man x(t)-vectors and <order> many parameter matrices
+    A_x to A_order. eta is the so called driving noise and is assumed
+    to be normally distributed with mean zero and covariance S.
+
+    <noiseCoeff> is an estimate of S. <covariance> is the covariance
+    of the vector-valued process.
     """
 
     # Ensure correct dtype and layout of data
@@ -45,10 +61,10 @@ def arfit(data, nData, dim, order):
     m_noiseCovariance = np.zeros((dim, dim), dtype=np.float64, order='C')
     m_processCovariance = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
 
-    status = libfdmb.wrp_arfit(m_data, nData, dim, order,
-                               m_arCoefficients, m_noiseCovariance, m_processCovariance)
+    status = libfdmb.py_arfit(m_data, nData, dim, order,
+                              m_arCoefficients, m_noiseCovariance, m_processCovariance)
 
     # Split coefficient matrix
-    m_arCoeffArray = np.hsplit(m_arCoefficients, dim)
+    m_arCoeffArray = np.hsplit(m_arCoefficients, order)
 
     return m_arCoeffArray, m_noiseCovariance, m_processCovariance
