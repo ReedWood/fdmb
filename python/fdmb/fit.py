@@ -8,10 +8,10 @@ import ctypes as ct
 import numpy as np
 
 
-# Load libfit and define input types
-ct.cdll.LoadLibrary("libpyfit.so")
-libfit = ct.CDLL("libpyfit.so")
-wrp_arfit = libfit.py_arfit
+# Load libfdmb and define input types
+ct.cdll.LoadLibrary("libfdmbpy.so")
+libfdmb = ct.CDLL("libfdmbpy.so")
+wrp_arfit = libfdmb.py_arfit
 
 
 # py_arfit: argtypes, restypes
@@ -45,8 +45,8 @@ def arfit(data, nData, dim, order):
     m_noiseCovariance = np.zeros((dim, dim), dtype=np.float64, order='C')
     m_processCovariance = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
 
-    status = libfit.wrp_arfit(m_data, nData, dim, order,
-                              m_arCoefficients, m_noiseCovariance, m_processCovariance)
+    status = libfdmb.wrp_arfit(m_data, nData, dim, order,
+                               m_arCoefficients, m_noiseCovariance, m_processCovariance)
 
     # Split coefficient matrix
     m_arCoeffArray = np.hsplit(m_arCoefficients, dim)

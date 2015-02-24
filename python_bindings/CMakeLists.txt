@@ -17,7 +17,7 @@
 add_library(fdmbpy SHARED pyFit.cpp)
 
 
-target_link_libraries(fdmbpy fit)
+target_link_libraries(fdmbpy fdmb)
 
 
 install(TARGETS fdmbpy DESTINATION lib)
