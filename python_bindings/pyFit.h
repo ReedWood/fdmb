@@ -27,8 +27,8 @@
 #include "global.h"
 #include "fit.h"
 
-
 extern "C" {
+  //FIXME Complete function documentation
   /**
    * @brief Fit parameters in an AR model.
    * 
@@ -48,5 +48,15 @@ extern "C" {
                double *arCoefficients,
                double *drvNoise,
                double *autoCov
+              );
+  
+  int py_emfit(const double *data,
+               const int nData,
+               const int dim,
+               const int order,
+               const double aThresh,
+               const double pThresh,
+               const int maxIter,
+               double *arCoefficients
               );
 }

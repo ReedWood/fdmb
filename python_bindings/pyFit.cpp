@@ -33,21 +33,64 @@ int py_arfit(const double *data,
 {
   Eigen::Map<const MapMatrix> dataMap(data, nData, dim);
 
-  
+
   Matrix coefficientMatrix;
   Matrix noiseMatrix;
   Matrix covarianceMatrix;
-  
+
   arfit(dataMap, order, coefficientMatrix, noiseMatrix, covarianceMatrix);
-  
-  
+
+
   Eigen::Map<MapMatrix> coefficientMap(arCoefficients, dim, dim*order);
   Eigen::Map<MapMatrix> noiseMap(drvNoise, dim, dim);
   Eigen::Map<MapMatrix> covarianceMap(autoCov, dim*order, dim*order);
-  
+
   coefficientMap = coefficientMatrix;
   noiseMap = noiseMatrix;
   covarianceMap = covarianceMatrix;
 
   return 0;
 }
+
+
+int py_emfit(const double *data,
+             const int nData,
+             const int dim,
+             const int order,
+             const double aThresh,
+             const double pThresh,
+             const int maxIter,
+             double *arCoefficients
+            )
+{
+  Eigen::Map<const MapMatrix> dataMap(data, nData, dim);
+
+  Matrix y = dataMap;
+  Matrix x;
+
+  std::vector<Panel> panels(1);
+  panels[0].y = &y;
+  panels[0].x = &x;
+  
+  Model model;
+  model.order = order;
+  model.input = false;
+  model.est_h = false;
+
+  Info info;
+  info.aThresh = aThresh;
+  info.pThresh = pThresh;
+  info.maxIter = maxIter;
+  info.logPath = "/tmp/";
+  info.log = true;
+
+  emfit(panels, model, info);
+  
+  Eigen::Map<MapMatrix> coefficientMap(arCoefficients, dim*order, dim*order);
+  coefficientMap = model.a;
+
+
+  return 0;
+}
+
+

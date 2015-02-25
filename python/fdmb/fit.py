@@ -68,3 +68,31 @@ def arfit(data, nData, dim, order):
     m_arCoeffArray = np.hsplit(m_arCoefficients, order)
 
     return m_arCoeffArray, m_noiseCovariance, m_processCovariance
+
+
+# py_emfit: argtypes, restypes
+libfdmb.py_emfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             ct.c_int32,
+                             ct.c_int32,
+                             ct.c_int32,
+                             ct.c_double,
+                             ct.c_double,
+                             ct.c_int32,
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             ]
+
+libfdmb.py_emfit.restypes = np.int32
+
+
+# Interface for libfdmb.em_arfit
+def emfit(data, nData, dim, order, aThresh, pThresh, maxIter):
+    # Ensure correct dtype and layout of data
+    m_data = np.array(data, dtype=np.float64, order='C')
+    m_arCoefficients = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
+
+    status = libfdmb.py_emfit(m_data, nData, dim, order, aThresh, pThresh, maxIter,
+                              m_arCoefficients)
+
+    # Split coefficient matrix
+    m_arCoeffArray = np.hsplit(m_arCoefficients[:dim, :], order)
+    return m_arCoeffArray
