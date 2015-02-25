@@ -58,5 +58,4 @@ void arfit(const Matrix &x, int order, Matrix &a, Matrix &q, Matrix &v) {
   q = Q.block(0, 0, x.cols(), x.cols());
 
   v /= x.rows();
-  std::cout << a << std::endl;
 }

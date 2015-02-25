@@ -34,7 +34,7 @@ if(PYTHON)
   add_custom_target(target ALL DEPENDS ${OUTPUT})
 
   if(DEFINED ENV{BUILDING_FOR_AUR})
-    message(STATUS "Building AUR packages")
+    message(STATUS "Building AUR package")
   else()
     message(STATUS "Install to prefix")
     install(CODE "execute_process(COMMAND ${PYTHON} ${SETUP_PY} install --prefix=${CMAKE_INSTALL_PREFIX})")
