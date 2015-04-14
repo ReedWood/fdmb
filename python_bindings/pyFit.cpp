@@ -60,7 +60,10 @@ int py_emfit(const double *data,
              const double aThresh,
              const double pThresh,
              const int maxIter,
-             double *arCoefficients
+             double *arCoefficients,
+             double *dynNoiseCov,
+             double *obsNoiseCov,
+             double *hiddenStates
             )
 {
   Eigen::Map<const MapMatrix> dataMap(data, nData, dim);
@@ -81,15 +84,23 @@ int py_emfit(const double *data,
   info.aThresh = aThresh;
   info.pThresh = pThresh;
   info.maxIter = maxIter;
-  info.logPath = "/tmp/";
+  info.logPath = "/tmp/fdmb/";
   info.log = true;
 
   emfit(panels, model, info);
-  
+    
   Eigen::Map<MapMatrix> coefficientMap(arCoefficients, dim*order, dim*order);
   coefficientMap = model.a;
-
-
+  
+  Eigen::Map<MapMatrix> dynNoiseCovMap(dynNoiseCov, dim*order, dim*order);
+  dynNoiseCovMap = model.q;
+  
+  Eigen::Map<MapMatrix> obsNoiseCovMap(obsNoiseCov, dim, dim);
+  obsNoiseCovMap = model.r;
+  
+  Eigen::Map<MapMatrix> hiddenStatesMap(hiddenStates, dim*order, nData+1);
+  hiddenStatesMap = *(panels[0].x);
+  
   return 0;
 }
 

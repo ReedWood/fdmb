@@ -79,6 +79,9 @@ libfdmb.py_emfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              ct.c_double,
                              ct.c_int32,
                              np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              ]
 
 libfdmb.py_emfit.restypes = np.int32
@@ -89,10 +92,19 @@ def emfit(data, nData, dim, order, aThresh, pThresh, maxIter):
     # Ensure correct dtype and layout of data
     m_data = np.array(data, dtype=np.float64, order='C')
     m_arCoefficients = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
+    m_dynNoiseCov = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
+    m_obsNoiseCov = np.zeros((dim, dim), dtype=np.float64, order='C')
+    m_hiddenStates = np.zeros((dim*order, nData+1), dtype=np.float64, order='C')
 
-    status = libfdmb.py_emfit(m_data, nData, dim, order, aThresh, pThresh, maxIter,
-                              m_arCoefficients)
+    status = libfdmb.py_emfit(m_data, nData, dim, order,
+                              aThresh, pThresh, maxIter,
+                              m_arCoefficients, m_dynNoiseCov, m_obsNoiseCov,
+                              m_hiddenStates)
 
     # Split coefficient matrix
     m_arCoeffArray = np.hsplit(m_arCoefficients[:dim, :], order)
-    return m_arCoeffArray
+
+    # Grab relevant part of the dynamic noise covariance matrix q
+    m_dynNoiseCov = m_dynNoiseCov[:dim, :dim]
+
+    return m_arCoeffArray, m_dynNoiseCov, m_obsNoiseCov, m_hiddenStates
