@@ -82,24 +82,27 @@ libfdmb.py_emfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+                             ct.c_bool,
                              ]
 
 libfdmb.py_emfit.restypes = np.int32
 
 
-# Interface for libfdmb.em_arfit
-def emfit(data, nData, dim, order, aThresh, pThresh, maxIter):
+def emfit(data, nData, dim, order, aThresh, pThresh, maxIter, estError):
     # Ensure correct dtype and layout of data
     m_data = np.array(data, dtype=np.float64, order='C')
     m_arCoefficients = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
     m_dynNoiseCov = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
     m_obsNoiseCov = np.zeros((dim, dim), dtype=np.float64, order='C')
     m_hiddenStates = np.zeros((dim*order, nData+1), dtype=np.float64, order='C')
+    m_estimationError = np.zeros((dim**2*order, dim**2*order), dtype=np.float64, order='C')
 
     status = libfdmb.py_emfit(m_data, nData, dim, order,
                               aThresh, pThresh, maxIter,
                               m_arCoefficients, m_dynNoiseCov, m_obsNoiseCov,
-                              m_hiddenStates)
+                              m_hiddenStates, m_estimationError,
+                              estError)
 
     # Split coefficient matrix
     m_arCoeffArray = np.hsplit(m_arCoefficients[:dim, :], order)
@@ -107,4 +110,75 @@ def emfit(data, nData, dim, order, aThresh, pThresh, maxIter):
     # Grab relevant part of the dynamic noise covariance matrix q
     m_dynNoiseCov = m_dynNoiseCov[:dim, :dim]
 
-    return m_arCoeffArray, m_dynNoiseCov, m_obsNoiseCov, m_hiddenStates
+    # Split the estimation uncertainties and scale correctly
+    # What we calculate here is the variance of the distribution of
+    #   ThetaEst - Theta
+    # where ThetaEst is the estimate of a parameter and Theta its true value[1].
+    #
+    # [1] Shumway and Stoffer, Time series analysis and its application, page 344
+    m_estimationError = m_estimationError/np.sqrt(nData)
+    m_arCoeffErrorAll = m_estimationError[:dim*order, :dim*order]
+    m_arCoeffError = []
+    for o in range(0, order):
+        m_arCoeffError.append(m_arCoeffErrorAll[o*order: (o+1)*order,
+                                                o*order: (o+1)*order])
+
+    m_dynNoiseError = m_estimationError[(dim*order):(dim*order+dim),
+                                        (dim*order):(dim*order+dim)]
+    m_obsNoiseError = m_estimationError[dim*order+dim:dim*order+2*dim,
+                                        dim*order+dim:dim*order+2*dim]
+
+    return m_arCoeffArray, m_dynNoiseCov, m_obsNoiseCov, m_hiddenStates, \
+           m_arCoeffError, m_dynNoiseError, m_obsNoiseError
+
+
+def arspec(arCoeffArray, dynNoiseCov, df):
+    """
+      Estimate the power spectrum from VAR parameter.
+
+      Parameter
+      arCoeffArray: Array of transition matrices
+      dynNoiseCov:  Covariance matrix of the dynamic noise
+      df:           Desired frequency spacing of the power spectrum
+
+      Returns as first argument the power spectrum, as second the frequencies
+      for which the spectrum is evaluated. The Nyquist frequency is fixed at
+      pi, since an VAR has a natural sampling rate of 1 step which can be in
+      application any amount of time. Hence, you have to scale the frequency
+      vector by a factor, such that the last bin equals the Nyquist frequency
+      of the data.
+
+      CAVE
+      Please note that the formula for the power spectrum given in the
+      publication to this program is wrong. It was overlooked that in the
+      multivariate case the spectrum is calculated from a matrix-valued
+      formula and not simply by taking the diagonal elements and treat them
+      as univariate . Thus, the correct formula for the spectrum S(w) is
+        S(w) = s Q s*, with
+        s(w) = inv((1-c)), with
+        c(w) = sum_{o=1}^p(A[o]exp(-i o w)), where
+        s* is the adjoint matrix of s,
+        i is the imaginary unit,
+        o indexes the order time lag of the transition matrix A
+    """
+    freqences = np.pi*np.linspace(0, 1, 1/df+1)
+    nFreq = freqences.shape[0]
+
+    order = len(arCoeffArray)
+    dim = arCoeffArray[0].shape[0]
+
+    m_powerSpectrum = np.zeros([nFreq, dim, dim])
+    fCount = 0
+    for f in freqences:
+        s = 0+0j
+        for i in range(0, order):
+            s += arCoeffArray[i]*np.exp(-1j*f*(i+1))
+        s = np.linalg.inv(np.eye(dim)-s)
+        sH = np.conj(s.T)
+
+        m_powerSpectrum[fCount, :, :] = np.abs(s.dot(dynNoiseCov).dot(sH))
+        fCount += 1
+
+    return m_powerSpectrum, freqences
+
+

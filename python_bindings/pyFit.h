@@ -100,6 +100,8 @@ extern "C" {
                double *arCoefficients,
                double *dynNoiseCov,
                double *obsNoiseCov,
-               double *hiddenStates
+               double *hiddenStates,
+               double *estimationError,
+               bool estError
               );
 }

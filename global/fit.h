@@ -66,5 +66,6 @@ struct Info {
 
 void arfit(const Matrix &x, int order, Matrix &a, Matrix &q, Matrix &v);
 void emfit(std::vector<Panel> & panels, Model & model, Info & info);
+void V_analytically(std::vector<Panel> & panels, Model & model, Info & info);
 
 #endif

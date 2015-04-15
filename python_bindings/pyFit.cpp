@@ -63,7 +63,9 @@ int py_emfit(const double *data,
              double *arCoefficients,
              double *dynNoiseCov,
              double *obsNoiseCov,
-             double *hiddenStates
+             double *hiddenStates,
+             double *estimationError,
+             bool estError
             )
 {
   Eigen::Map<const MapMatrix> dataMap(data, nData, dim);
@@ -88,7 +90,16 @@ int py_emfit(const double *data,
   info.log = true;
 
   emfit(panels, model, info);
-    
+  if(estError) {
+    std::cout << "Estimating errors" << std::endl;
+    V_analytically( panels, model, info );
+
+    Eigen::Map<MapMatrix> estimationErrorMap(estimationError, dim*(order+2), dim*(order+2));
+    estimationErrorMap = model.v;
+  }
+  else
+    std::cout << "Skipping error estimation" << std::endl;
+
   Eigen::Map<MapMatrix> coefficientMap(arCoefficients, dim*order, dim*order);
   coefficientMap = model.a;
   

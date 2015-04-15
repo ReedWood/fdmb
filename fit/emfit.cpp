@@ -135,7 +135,7 @@ static void iterateDARE( Model & model, double const & threshold ) {
         p = (id - k * c) * p_1;
 		//std::cout << "Change = " << relativeChange( p, psav ) << std::endl;
     } while( relativeChange( p, psav ) > threshold );
-    
+
     b = p * a.transpose() * p_1.inverse();
     ikca = (id - k * c) * a;
     iba = id - b * a;

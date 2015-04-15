@@ -16,6 +16,7 @@
 
 add_library(fdmb SHARED arfit.cpp
                         emfit.cpp
+                        emfitEstimateError.cpp
                         ../global/global.cpp
                         )
                         
