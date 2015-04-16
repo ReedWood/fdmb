@@ -38,6 +38,15 @@ set(EIGEN3_INCLUDE_DIR "/usr/include/eigen3/")
 include_directories(global ${EIGEN3_INCLUDE_DIR})
 
 
+# Print configuration
+message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  message(STATUS "C++ flags: " ${CMAKE_CXX_FLAGS_RELEASE})
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message(STATUS "C++ flags: " ${CMAKE_CXX_FLAGS_DEBUG})
+endif()
+
+
 add_subdirectory(fit)
 add_subdirectory(python)
 add_subdirectory(python_bindings)
