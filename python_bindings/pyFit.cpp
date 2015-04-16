@@ -65,7 +65,8 @@ int py_emfit(const double *data,
              double *obsNoiseCov,
              double *hiddenStates,
              double *estimationError,
-             bool estError
+             const bool estError,
+             const double *initTransitionMatrix
             )
 {
   Eigen::Map<const MapMatrix> dataMap(data, nData, dim);
@@ -81,6 +82,11 @@ int py_emfit(const double *data,
   model.order = order;
   model.input = false;
   model.est_h = false;
+
+  if(!std::isnan(*initTransitionMatrix)){
+    Eigen::Map<const MapMatrix> initTransitionMatrixMap(initTransitionMatrix, dim, dim*order);
+    model.a = initTransitionMatrixMap;
+  }
 
   Info info;
   info.aThresh = aThresh;

@@ -102,6 +102,7 @@ extern "C" {
                double *obsNoiseCov,
                double *hiddenStates,
                double *estimationError,
-               bool estError
+               const bool estError,
+               const double *initTransitionMatrix
               );
 }

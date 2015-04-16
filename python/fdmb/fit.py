@@ -84,12 +84,14 @@ libfdmb.py_emfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              ct.c_bool,
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
                              ]
 
 libfdmb.py_emfit.restypes = np.int32
 
 
-def emfit(data, nData, dim, order, aThresh, pThresh, maxIter, estError):
+def emfit(data, nData, dim, order, aThresh, pThresh=1e-6, maxIter=np.int(1e-4),
+          estError=False, initTransitionMatrix=np.nan*np.eye(1)):
     # Ensure correct dtype and layout of data
     m_data = np.array(data, dtype=np.float64, order='C')
     m_arCoefficients = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
@@ -102,7 +104,7 @@ def emfit(data, nData, dim, order, aThresh, pThresh, maxIter, estError):
                               aThresh, pThresh, maxIter,
                               m_arCoefficients, m_dynNoiseCov, m_obsNoiseCov,
                               m_hiddenStates, m_estimationError,
-                              estError)
+                              estError, initTransitionMatrix)
 
     # Split coefficient matrix
     m_arCoeffArray = np.hsplit(m_arCoefficients[:dim, :], order)

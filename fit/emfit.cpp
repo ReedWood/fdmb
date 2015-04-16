@@ -333,7 +333,7 @@ static void checkInput( std::vector< Panel > & panels, Model & model, Info & inf
     } else if( model.a.rows() == model.dim && model.a.cols() == model.dimX ) {
         model.a.conservativeResize( model.dimX, Eigen::NoChange );
         model.a.block( model.dim, 0, (model.order - 1) * model.dim, model.dimX ).setIdentity();
-	} else if( model.a.rows() == model.dimX && model.a.cols() == model.dimX ) {
+    } else if( model.a.rows() == model.dimX && model.a.cols() == model.dimX ) {
         model.a.block( model.dim, 0, (model.order - 1) * model.dim, model.dimX ).setIdentity();
     } else //if( model.a.rows() != model.dimX || model.a.cols() != model.dimX ) {
         std::cerr << "ERROR: Dimension mismatch of matrix A in emfit. " << std::endl << die();
