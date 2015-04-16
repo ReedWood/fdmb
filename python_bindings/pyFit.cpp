@@ -100,7 +100,7 @@ int py_emfit(const double *data,
     std::cout << "Estimating errors" << std::endl;
     V_analytically( panels, model, info );
 
-    Eigen::Map<MapMatrix> estimationErrorMap(estimationError, dim*(order+2), dim*(order+2));
+    Eigen::Map<MapVector> estimationErrorMap(estimationError, dim*dim*(order+2), 1);
     estimationErrorMap = model.v;
   }
   else

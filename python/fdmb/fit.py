@@ -71,20 +71,20 @@ def arfit(data, nData, dim, order):
 
 
 # py_emfit: argtypes, restypes
-libfdmb.py_emfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                             ct.c_int32,
-                             ct.c_int32,
-                             ct.c_int32,
-                             ct.c_double,
-                             ct.c_double,
-                             ct.c_int32,
-                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
-                             ct.c_bool,
-                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),
+libfdmb.py_emfit.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),  # data
+                             ct.c_int32,                                        # nData
+                             ct.c_int32,                                        # dim
+                             ct.c_int32,                                        # order
+                             ct.c_double,                                       # aThresh
+                             ct.c_double,                                       # pThresh
+                             ct.c_int32,                                        # maxIter
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),  # m_arCoefficients
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),  # m_dynNoiseCov
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),  # m_obsNoiseCov
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),  # m_hiddenStates
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=1),  # m_estimationError
+                             ct.c_bool,                                         # estError
+                             np.ctypeslib.ndpointer(dtype=np.float64, ndim=2),  # initTransitionMatrix
                              ]
 
 libfdmb.py_emfit.restypes = np.int32
@@ -98,7 +98,7 @@ def emfit(data, nData, dim, order, aThresh, pThresh=1e-6, maxIter=np.int(1e-4),
     m_dynNoiseCov = np.zeros((dim*order, dim*order), dtype=np.float64, order='C')
     m_obsNoiseCov = np.zeros((dim, dim), dtype=np.float64, order='C')
     m_hiddenStates = np.zeros((dim*order, nData+1), dtype=np.float64, order='C')
-    m_estimationError = np.zeros((dim**2*order, dim**2*order), dtype=np.float64, order='C')
+    m_estimationError = np.zeros(dim**2*(order+2), dtype=np.float64, order='C')
 
     status = libfdmb.py_emfit(m_data, nData, dim, order,
                               aThresh, pThresh, maxIter,
@@ -112,23 +112,21 @@ def emfit(data, nData, dim, order, aThresh, pThresh=1e-6, maxIter=np.int(1e-4),
     # Grab relevant part of the dynamic noise covariance matrix q
     m_dynNoiseCov = m_dynNoiseCov[:dim, :dim]
 
-    # Split the estimation uncertainties and scale correctly
+    # Split error/uncertainty of the parameter estimates
     # What we calculate here is the variance of the distribution of
     #   ThetaEst - Theta
     # where ThetaEst is the estimate of a parameter and Theta its true value[1].
     #
     # [1] Shumway and Stoffer, Time series analysis and its application, page 344
     m_estimationError = m_estimationError/np.sqrt(nData)
-    m_arCoeffErrorAll = m_estimationError[:dim*order, :dim*order]
-    m_arCoeffError = []
-    for o in range(0, order):
-        m_arCoeffError.append(m_arCoeffErrorAll[o*order: (o+1)*order,
-                                                o*order: (o+1)*order])
 
-    m_dynNoiseError = m_estimationError[(dim*order):(dim*order+dim),
-                                        (dim*order):(dim*order+dim)]
-    m_obsNoiseError = m_estimationError[dim*order+dim:dim*order+2*dim,
-                                        dim*order+dim:dim*order+2*dim]
+    m_arCoeffError = []
+    m_dynNoiseError = np.zeros([dim, dim])
+    m_obsNoiseError = np.zeros([dim, dim])
+    for i in range(0, order):
+        m_arCoeffError.append(np.reshape(m_estimationError[i*dim**2:(i+1)*dim**2], (dim, dim)))
+    m_dynNoiseError = np.reshape(m_estimationError[dim**2*order:dim**2*order+dim**2], (dim, dim))
+    m_obsNoiseError = np.reshape(m_estimationError[dim**2*order+dim**2:dim**2*order+2*dim**2], (dim, dim))
 
     return m_arCoeffArray, m_dynNoiseCov, m_obsNoiseCov, m_hiddenStates, \
            m_arCoeffError, m_dynNoiseError, m_obsNoiseError
@@ -182,5 +180,3 @@ def arspec(arCoeffArray, dynNoiseCov, df):
         fCount += 1
 
     return m_powerSpectrum, freqences
-
-

@@ -647,21 +647,9 @@ void V_analytically( std::vector< Panel > & panels, Model & model, Info & info )
   calc_dd_incompl_likelihood ddlnlike( panels, model );
   tbb::parallel_reduce( tbb::blocked_range< size_t >( 0, panels.size() ), ddlnlike );
 
-
   Matrix inverted_ddlikeV;
-
-  size_t dimX = model.dimX;
-  size_t order = model.order;
-  size_t dimA = dimX*floor(dimX/order);
   inverted_ddlikeV = (ddlnlike.V).inverse();
-  model.v = Matrix::Zero(dimA,dimA);
-//   std::cout << "ddlnlike.V = " << inverted_ddlikeV << std::endl;
-
-  for (int ir = 0; ir < dimA; ++ir) {
-    for (int ic = 0; ic < dimA; ++ic) {
-      model.v(ir,ic) = inverted_ddlikeV(ir,ic);
-    }
-  }
+  model.v = inverted_ddlikeV.diagonal();
 
   logV_analytically( panels, model, info );
 }

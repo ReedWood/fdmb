@@ -27,6 +27,7 @@
 typedef Eigen::MatrixXd Matrix;
 typedef Eigen::MatrixXcd CMatrix;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MapMatrix;
+typedef Eigen::Matrix<double, Eigen::Dynamic, 1> MapVector;
 
 const std::complex< double > iconst = std::complex< double >( 0, 1 );
 const double Pi = std::atan( 1.0 ) * 4;
