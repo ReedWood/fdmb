@@ -12,7 +12,7 @@ import fdmb
 dim = 2
 order = 3
 nDataShort = 3000
-nDataLong  30000
+nDataLong = 30000
 aThresh = 1e-5
 pThresh = 1e-7
 maxIter = 100000
@@ -46,8 +46,10 @@ shortLSA, shortLSQ, shortLSR = fdmb.arfit(hiddenShort, nDataShort, dim, order)
 longLSA, longLSQ, longLSR = fdmb.arfit(hiddenLong, nDataLong, dim, order)
 
 # Fit VAR model to data, EM
+print('Start EM on short data')
 shortMLEAc, shortMLEQc, shortMLERc, shortX, errA, errQ, errR \
       = fdmb.emfit(obsShort, nDataShort, dim, order, aThresh, pThresh, maxIter, False)
+print('Start EM on long data')
 longMLEAc, longMLEQc, longMLERc, longX, errA, errQ, errR \
       = fdmb.emfit(obsLong, nDataLong, dim, order, aThresh, pThresh, maxIter, False)
 
