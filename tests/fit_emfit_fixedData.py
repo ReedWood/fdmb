@@ -4,15 +4,27 @@ Tshort for fdmb.arfit()
 A two dimensionsional (dim=3) AR[3] (order=3) is fitted using nData=5000 data points.
 """
 
+import pickle
 import numpy as np
 import fdmb
+
+
+class MleRes:
+    def __init__(self):
+        self.mleA = 0
+        self.mleQ = 0
+        self.mleR = 0
+        self.mleX = 0
+        self.aThresh = 0
+        self.pThresh = 0
+        self.SNR = 0
+        self.nData = 0
 
 
 # Data parameters
 dim = 2
 order = 3
-nDataShort = 3000
-nDataLong = 30000
+nData = 30000
 aThresh = 1e-5
 pThresh = 1e-7
 maxIter = 100000
@@ -35,30 +47,49 @@ maxIter = 100000
 
 
 # Load data
-hiddenShort = np.loadtxt('obsShort.dat')
-hiddenLong = np.loadtxt('obsLong.dat')
-obsShort = np.loadtxt('obsShort.dat')
-obsLong = np.loadtxt('obsLong.dat')
+hiddenP5 = np.loadtxt('hidden-SNR-P5.dat')
+obsP5 = np.loadtxt('obs-SNR-P5.dat')
+obsNoiseP5 = np.loadtxt('obsNoise-SNR-P5.dat')
+
+hiddenP125 = np.loadtxt('hidden-SNR-P125.dat')
+obsP125 = np.loadtxt('obs-SNR-P125.dat')
+obsNoiseP125 = np.loadtxt('obsNoise-SNR-P125.dat')
 
 
 # Fit VAR model to data, least squares
-shortLSA, shortLSQ, shortLSR = fdmb.arfit(hiddenShort, nDataShort, dim, order)
-longLSA, longLSQ, longLSR = fdmb.arfit(hiddenLong, nDataLong, dim, order)
+lsA, lsQ, lsR = fdmb.arfit(hiddenP5, nData, dim, order)
+
 
 # Fit VAR model to data, EM
-print('Start EM on short data')
-shortMLEAc, shortMLEQc, shortMLERc, shortX, errA, errQ, errR \
-      = fdmb.emfit(obsShort, nDataShort, dim, order, aThresh, pThresh, maxIter, False)
-print('Start EM on long data')
-longMLEAc, longMLEQc, longMLERc, longX, errA, errQ, errR \
-      = fdmb.emfit(obsLong, nDataLong, dim, order, aThresh, pThresh, maxIter, False)
+print('Start EM on SNR=1/2')
+mleP5A, mleP5Q, mleP5R, mleP5X, errA, errQ, errR \
+      = fdmb.emfit(obsP5, nData, dim, order, aThresh, pThresh, maxIter, False)
+print('Start EM on SNR=1/8')
+mleP125A, mleP125Q, mleP125R, mleP125X, errA, errQ, errR \
+      = fdmb.emfit(obsP125, nData, dim, order, aThresh, pThresh, maxIter, False)
+
+mleResList = []
+mleResList.append(MleRes())
+mleResList[-1].mleA = mleP5A
+mleResList[-1].mleQ = mleP5Q
+mleResList[-1].mleR = mleP5R
+mleResList[-1].mleX = mleP5X
+mleResList[-1].aThresh = aThresh
+mleResList[-1].pThresh = pThresh
+mleResList[-1].SNR = .5
+mleResList[-1].nData = nData
+
+mleResList.append(MleRes())
+mleResList[-1].mleA = mleP125A
+mleResList[-1].mleQ = mleP125Q
+mleResList[-1].mleR = mleP125R
+mleResList[-1].mleX = mleP125X
+mleResList[-1].aThresh = aThresh
+mleResList[-1].pThresh = pThresh
+mleResList[-1].SNR = 1/8
+mleResList[-1].nData = nData
 
 
-## Print out test results
-#print('Estimated VAR parameter values')
-#print(arCoeff[0][0], end='\n\n')
-#print(arCoeff[0][1], end='\n\n')
-#print(arCoeff[0][2], end='\n\n')
-
-#print(arCoeff[1], end='\n\n')
-#print(arCoeff[2], end='\n\n')
+# Write results to disk
+with open('fit_emfit_fixedData.pickle', 'wb') as f:
+    pickle.dump(mleResList, f, pickle.HIGHEST_PROTOCOL)
