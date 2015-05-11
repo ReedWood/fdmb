@@ -94,6 +94,7 @@ int py_emfit(const double *data,
   info.maxIter = maxIter;
   info.logPath = "/tmp/fdmb/";
   info.log = true;
+  info.logStep = 100;
 
   emfit(panels, model, info);
   if(estError) {
