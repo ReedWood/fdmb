@@ -11,7 +11,7 @@ import fdmb
 # Generate dim 2 AR[3] data
 dim = 2
 order = 3
-nData = 30000
+nData = 3000
 aThresh = .00001
 pThresh = .00001
 maxIter = 10000
