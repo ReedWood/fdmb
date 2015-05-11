@@ -11,9 +11,9 @@ import fdmb
 # Generate dim 2 AR[3] data
 dim = 2
 order = 3
-nData = 10000
-aThresh = .001
-pThresh = .001
+nData = 30000
+aThresh = .00001
+pThresh = .00001
 maxIter = 10000
 
 A1 = np.array([[.9, 0], [.4, .8]])
@@ -27,14 +27,21 @@ for t in np.arange(order, nData, 1):
                  A3.dot(data[t-3, :]) + np.random.randn(dim)
 
 # Generate observations
-obs = data + .2*np.random.randn(*data.shape)
+obsNoise = 3*np.random.randn(*data.shape)
+obs = data + obsNoise
 
 # Fit VAR model to data
 arCoeff = fdmb.emfit(obs, nData, dim, order, aThresh, pThresh, maxIter)
 
-testsum = np.sum(np.round(A1-arCoeff[0], decimals=1)) + \
-          np.sum(np.round(A2-arCoeff[1], decimals=1)) + \
-          np.sum(np.round(A3-arCoeff[2], decimals=1))
+# Print out test results
+print('Estimated VAR parameter values')
+print(arCoeff[0][0], end='\n\n')
+print(arCoeff[0][1], end='\n\n')
+print(arCoeff[0][2], end='\n\n')
+
+testsum = np.sum(np.round(A1-arCoeff[0][0], decimals=1)) + \
+          np.sum(np.round(A2-arCoeff[0][1], decimals=1)) + \
+          np.sum(np.round(A3-arCoeff[0][2], decimals=1))
 
 if testsum > 0:
     print("Test failed")

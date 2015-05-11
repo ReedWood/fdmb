@@ -129,7 +129,7 @@ def emfit(data, nData, dim, order, aThresh, pThresh=1e-6, maxIter=np.int(1e-4),
     m_obsNoiseError = np.reshape(m_estimationError[dim**2*order+dim**2:dim**2*order+2*dim**2], (dim, dim))
 
     return m_arCoeffArray, m_dynNoiseCov, m_obsNoiseCov, m_hiddenStates, \
-           m_arCoeffError, m_dynNoiseError, m_obsNoiseError
+        m_arCoeffError, m_dynNoiseError, m_obsNoiseError
 
 
 def arspec(arCoeffArray, dynNoiseCov, df):
