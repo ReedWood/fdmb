@@ -34,6 +34,39 @@ struct Panel {
 };
 
 
+/**
+ * @brief Gather state-space model parameters and states
+ *
+ * @var Model::order
+ * @var Model::ma_order
+ * @var Model::dim
+ * @var Model::dimX
+ * @var Model::dimU
+ * @var Model::a
+ * @var Model::m
+ * @var Model::c
+ * @var Model::q
+ * @var Model::r
+ * @var Model::p P_t^t
+ * @var Model::g
+ * @var Model::h
+ * @var Model::p_1 P_t^{t-1}
+ * @var Model::k Kalman gain, filter
+ * @var Model::b Smoothing gain
+ * @var Model::t
+ * @var Model::tqtt
+ * @var Model::ts
+ * @var Model::ikca (Identity-kc)a, needed in the Kalman filter
+ * @var Model::iba Identity-ba
+ * @var Model::ikcgh
+ * @var Model::asav
+ * @var Model::v
+ * @var Model::input
+ * @var Model::est_h
+ * @var Model::t_u
+ * @var Model::t_y
+ *
+ */
 struct Model {
     size_t order, ma_order, dim, dimX, dimU;
     Matrix a, m, c, q, r, p;
