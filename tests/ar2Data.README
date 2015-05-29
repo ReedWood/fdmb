@@ -1,0 +1,42 @@
+Documentation of the test data set ar2Data{Hidden,Obs}
+======================================================
+
+Data simulation
+---------------
+True parameters
+Transition matrix
+A(1) =   1.3000,  0.3000
+         0     ,  1.7000
+
+A(2) =  -0.8000,   0
+         0     ,  -0.8000
+
+Driving noise covariance
+Q = 1,  0
+    0,  1
+
+Observational noise covariance
+R = c,  0
+    0,  c
+
+c = sqrt(0.5*mean(std(ar2DataHidden)))
+This leads to a signal-to-noise ration of 2:1
+For the actual time series it is
+R = 11.0960,   0
+     0     ,  10.9848
+
+
+Fit
+---
+By running testEmFit.py, the em fit should return
+A(1) =  1.30550248,  0.28797118,
+       -0.02384243,  1.71119078
+
+A(2) = -8.02262977e-01,   5.75953420e-03,
+       -4.26190044e-04,  -7.90536237e-01
+
+Q =  1.09429302,  -0.00408784
+    -0.00408784,   0.88341843
+
+R =  10.8341601,  -0.11942269,
+    -0.11942269,   11.0743018
