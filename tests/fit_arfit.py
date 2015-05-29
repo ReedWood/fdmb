@@ -25,7 +25,7 @@ for t in np.arange(order, nData, 1):
 
 
 # Fit VAR model to data
-arCoeff, noiseCov, arCov = fdmb.arfit(data, nData, dim, order)
+arCoeff, noiseCov = fdmb.arfit(data, nData, dim, order)
 
 testsum = np.sum(np.round(A1-arCoeff[0], decimals=1)) + \
           np.sum(np.round(A2-arCoeff[1], decimals=1)) + \

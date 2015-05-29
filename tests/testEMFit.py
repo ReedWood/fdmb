@@ -30,7 +30,7 @@ targetR = np.array([[10.8341601,  -0.11942269],
 
 # Fit and results
 print('Start fit')
-arCoeff = fdmb.emfit(obs, nData, dim, order, aThresh, pThresh, maxIter, estError)
+arCoeff = fdmb.emfit(obs, nData, dim, order, aThresh, maxIter, pThresh, estError)
 
 estA = np.asanyarray(arCoeff[0])
 estQ = arCoeff[1]
